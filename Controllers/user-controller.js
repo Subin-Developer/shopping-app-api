@@ -1,5 +1,5 @@
 import usermodel from "../Models/usermodel.js";
-//import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 
 export const getAllusers = async (req, res, next) => {
     let users;
@@ -21,23 +21,32 @@ export const getAllusers = async (req, res, next) => {
   export const signup = async (req, res, next) => {
     console.log("called");
     const { name, email, password } = req.body; // Fix variable name here
+    
+    // Check if the password field is missing or empty
+    if (!password) {
+        return res.status(400).json({ message: "Password is required" });
+    }
+    
     let existingUser;
     try {
         existingUser = await usermodel.findOne({ email }); // Make sure to use the correct model
     } catch (e) {
-        console.error(e); // Change console.log to console.error for better visibility of errors
-        return res.status(500).json({ message: "Internal Server Error" }); // Return an error response
+        console.error(e);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
+    
     if (existingUser) {
         return res.status(400).json({ message: "User already exists" });
     }
-    const hashedpassword=bcrypt.hashSync(password)
-    console.log(hashedpassword);
+    
+    const hashedpassword = bcrypt.hashSync(password, 10); // Hash the password with a salt round of 10
+    
     const user = new usermodel({
         name,
         email,
-        password:hashedpassword, // Fix variable name here
+        password: hashedpassword,
     });
+    
     try {
         await user.save();
         return res.status(201).json({ user });
@@ -46,6 +55,7 @@ export const getAllusers = async (req, res, next) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
 
 
 export const login =async(req,res,next)=>{
