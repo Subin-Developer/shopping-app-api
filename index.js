@@ -8,6 +8,8 @@ const port = 4000;
 app.use(express.json());
 app.use('/user',routes);
 
+
+
 mongoose.connect("mongodb+srv://subinsubi7012:x9XZ5hkvecyUtSEv@cluster0.4juendb.mongodb.net/PRODUCTSELLING?retryWrites=true&w=majority&appName=Cluster0")
    .then(() => {
       app.listen(port,() => {
